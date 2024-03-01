@@ -1,0 +1,73 @@
+service: live-20-cognito
+frameworkVersion: '3'
+
+plugins:
+  - serverless-esbuild
+
+package:
+  individually: true
+
+provider:
+  name: aws
+  region: us-east-1
+  runtime: nodejs20.x
+  deploymentMethod: direct
+  architecture: arm64
+
+custom:
+  esbuild:
+    bundle: true
+    minify: true
+    sourcemap: false
+    target: node20
+    exclude:
+      - '@aws-sdk/*'
+    define:
+      require.resolve: undefined
+    platform: node
+    concurrency: 10
+
+resources:
+  Resources:
+    Live020UserPool:
+      Type: AWS::Cognito::UserPool
+      Properties:
+        DeletionProtection: INACTIVE
+        UserPoolName: Live020UserPool
+        MfaConfiguration: OFF
+        AutoVerifiedAttributes:
+          - email
+        AdminCreateUserConfig:
+          AllowAdminCreateUserOnly: false
+        UsernameAttributes:
+          - email
+        AccountRecoverySetting:
+          RecoveryMechanisms:
+            - Name: "verified_email"
+              Priority: 1
+        Policies:
+          PasswordPolicy:
+            MinimumLength: 10
+            RequireLowercase: false
+            RequireNumbers: false
+            RequireSymbols: false
+            RequireUppercase: false
+            TemporaryPasswordValidityDays: 2
+        Schema:
+          - Name: given_name
+            Mutable: true
+            Required: true
+            AttributeDataType: String
+          - Name: family_name
+            Mutable: true
+            Required: true
+            AttributeDataType: String
+
+
+functions:
+  hello:
+    handler: src/functions/hello.handler
+    events:
+      - httpApi:
+          method: GET
+          path: /hello
