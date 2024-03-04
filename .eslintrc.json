@@ -18,6 +18,7 @@
   ],
   "rules": {
     "@typescript-eslint/no-explicit-any": "off",
+    "no-empty": "off",
     "indent": [
       "error",
       2

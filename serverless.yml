@@ -13,6 +13,8 @@ provider:
   runtime: nodejs20.x
   deploymentMethod: direct
   architecture: arm64
+  environment:
+    COGNITO_CLIENT_ID: !Ref LiveUserPoolClient
 
 custom:
   esbuild:
@@ -77,9 +79,9 @@ resources:
         RefreshTokenValidity: 1440 # 60 days
 
 functions:
-  hello:
-    handler: src/functions/hello.handler
+  signUp:
+    handler: src/functions/signUp.handler
     events:
       - httpApi:
-          method: GET
-          path: /hello
+          method: POST
+          path: /auth/sign-up
