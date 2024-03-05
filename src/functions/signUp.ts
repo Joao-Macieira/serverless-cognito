@@ -27,6 +27,7 @@ export async function handler(event: APIGatewayProxyEventV2) {
       }
     });
   } catch (error) {
+    console.log(error);
     if (error instanceof UsernameExistsException) {
       return response(409, {
         error: 'This email is already in use'
