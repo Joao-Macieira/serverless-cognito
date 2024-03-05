@@ -97,3 +97,9 @@ functions:
       - httpApi:
           method: POST
           path: /auth/sign-in
+  refreshToken:
+    handler: src/functions/refreshToken.handler
+    events:
+      - httpApi:
+          method: POST
+          path: /auth/refresh-token
