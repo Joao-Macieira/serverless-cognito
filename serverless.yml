@@ -13,8 +13,23 @@ provider:
   runtime: nodejs20.x
   deploymentMethod: direct
   architecture: arm64
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action: cognito-idp:AdminGetUser
+          Resource: !GetAtt Live020UserPool.Arn
   environment:
     COGNITO_CLIENT_ID: !Ref LiveUserPoolClient
+    COGNITO_POOL_ID: !Ref Live020UserPool
+  httpApi:
+    authorizers:
+      CognitoAuthorizer:
+        type: jwt
+        identitySource: $request.header.Authorization
+        issuerUrl: !GetAtt Live020UserPool.ProviderURL
+        audience:
+          - !Ref LiveUserPoolClient
 
 custom:
   esbuild:
@@ -103,3 +118,11 @@ functions:
       - httpApi:
           method: POST
           path: /auth/refresh-token
+  profile:
+    handler: src/functions/profile.handler
+    events:
+      - httpApi:
+          method: GET
+          path: /profile
+          authorizer:
+            name: CognitoAuthorizer
